@@ -12,6 +12,8 @@ import com.example.tassanai.onlinecourse.liveat500px.R;
 import com.example.tassanai.onlinecourse.liveat500px.adapter.PhotoListAdapter;
 import com.example.tassanai.onlinecourse.liveat500px.dao.PhotoItemCollectionDao;
 import com.example.tassanai.onlinecourse.liveat500px.manager.HttpManager;
+import com.example.tassanai.onlinecourse.liveat500px.manager.PhotoListManager;
+import com.inthecheesefactory.thecheeselibrary.manager.Contextor;
 
 import java.io.IOException;
 
@@ -22,7 +24,7 @@ import retrofit2.Response;
 public class MainFragment extends Fragment {
 
     ListView listView;
-    PhotoListAdapter photoListAdapter;
+    PhotoListAdapter listAdapter;
 
     public MainFragment() {
         super();
@@ -46,8 +48,8 @@ public class MainFragment extends Fragment {
     private void initInstances(View rootView) {
         // Init 'View' instance(s) with rootView.findViewById here
         listView = (ListView) rootView.findViewById(R.id.listView);
-        photoListAdapter = new PhotoListAdapter();
-        listView.setAdapter(photoListAdapter);
+        listAdapter = new PhotoListAdapter();
+        listView.setAdapter(listAdapter);
 
         Call<PhotoItemCollectionDao> call = HttpManager.getInstance().getService().loadPhotoList();
         call.enqueue(new Callback<PhotoItemCollectionDao>() {
@@ -56,13 +58,18 @@ public class MainFragment extends Fragment {
                                    Response<PhotoItemCollectionDao> response) {
                 if (response.isSuccessful()) {
                     PhotoItemCollectionDao dao = response.body();
-                    Toast.makeText(getActivity(),
+                    //-- Application
+//                    PhotoListManager.getInstance().setDao(dao);
+                    //-- local
+                    listAdapter.setDao(dao);
+                    listAdapter.notifyDataSetChanged();
+                    Toast.makeText(Contextor.getInstance().getContext(),
                             dao.getData().get(0).getCaption(),
                             Toast.LENGTH_LONG).show();
                 } else {
                     // Handle
                     try {
-                        Toast.makeText(getActivity(),
+                        Toast.makeText(Contextor.getInstance().getContext(),
                                 response.errorBody().string(),
                                 Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
@@ -75,7 +82,7 @@ public class MainFragment extends Fragment {
             public void onFailure(Call<PhotoItemCollectionDao> call,
                                   Throwable t) {
                 // Handle
-                Toast.makeText(getActivity(),
+                Toast.makeText(Contextor.getInstance().getContext(),
                         t.toString(),
                         Toast.LENGTH_LONG).show();
             }

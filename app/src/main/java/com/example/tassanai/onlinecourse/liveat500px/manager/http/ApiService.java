@@ -14,4 +14,3 @@ public interface ApiService {
     @POST("list")
     Call<PhotoItemCollectionDao> loadPhotoList();
 }
-
